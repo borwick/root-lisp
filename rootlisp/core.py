@@ -8,6 +8,7 @@ def eval(exp, env):
     if is_atom(exp): return lookup(exp, env)
     elif is_atom(exp[0]):
         if exp[0] == "quote": return quote(exp)
+        elif exp[0] == "nil": return None
         elif exp[0] == "atom": return atom(exp, env)
         elif exp[0] == "eq": return eq(exp, env)
         elif exp[0] == "car": return car(exp, env)

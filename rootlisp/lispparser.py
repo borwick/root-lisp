@@ -18,6 +18,9 @@ def parse(source):
         raise SyntaxError('Expected EOF')
     elif exp[0] == "'":
         return ["quote", parse(exp[1:])]
+    elif exp[0] == "[":
+        end = find_matching_bracket(exp)
+        return [parse(e) for e in split_exps(exp[1:end])]
     elif exp[0] == "(":
         end = find_matching_paren(exp)
         return [parse(e) for e in split_exps(exp[1:end])]
@@ -50,6 +53,9 @@ def partition_exp(source):
     elif source[0] == "(":
         last = find_matching_paren(source)
         return source[:last + 1], source[last + 1:]
+    elif source[0] == "[":
+        last = find_matching_bracket(source)
+        return source[:last + 1], source[last + 1:]
     else:
         match = re.match(r"^[^\s)']+", source)
         end = match.end()
@@ -69,5 +75,21 @@ def find_matching_paren(source, start=0):
         if source[pos] == '(':
             open_brackets += 1
         if source[pos] == ')':
+            open_brackets -= 1
+    return pos
+
+def find_matching_bracket(source, start=0):
+    """Given a string and the index of an opening parenthesis, determine 
+    the index of the matching closing paren"""
+    assert source[start] == '['
+    pos = start
+    open_brackets = 1
+    while open_brackets > 0:
+        pos += 1
+        if len(source) == pos:
+            raise SyntaxError("Unbalanced expression: %s" % source[start:])
+        if source[pos] == '[':
+            open_brackets += 1
+        if source[pos] == ']':
             open_brackets -= 1
     return pos
