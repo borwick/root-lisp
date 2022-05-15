@@ -7,8 +7,10 @@ def unparse(ast):
     if isinstance(ast, str): return ast
     elif len(ast) > 0 and ast[0] == "quote":
         return "'%s" % unparse(ast[1])
-    else:
+    elif isinstance(ast, tuple):
         return "(%s)" % " ".join([unparse(x) for x in ast])
+    else:
+        return "[%s]" % " ".join([unparse(x) for x in ast])
 
 def parse(source):
     """Parse string representation of one single expression
@@ -23,7 +25,7 @@ def parse(source):
         return [parse(e) for e in split_exps(exp[1:end])]
     elif exp[0] == "(":
         end = find_matching_paren(exp)
-        return [parse(e) for e in split_exps(exp[1:end])]
+        return tuple(parse(e) for e in split_exps(exp[1:end]))
     else:
         return exp
 
